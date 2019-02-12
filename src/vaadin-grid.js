@@ -384,6 +384,7 @@ class GridElement extends
   constructor() {
     super();
     this.addEventListener('animationend', this._onAnimationEnd);
+    this.maxPages = this.attributes.maxPages.value;
   }
 
   _createScrollerRows(count) {

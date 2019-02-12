@@ -46,6 +46,16 @@ export const PolymerIronList = Class({
     IronResizableBehavior,
     IronScrollTargetBehavior
   ],
+  
+  properties: {
+    /**
+     * The max number of pages to render. One page is equivalent to the height of the list.
+     */
+    maxPages: {
+      type: Number,
+      value: 2,
+    }
+  },
 
   /**
    * The ratio of hidden tiles that should remain in the scroll direction.
@@ -140,11 +150,6 @@ export const PolymerIronList = Class({
    * @type {?number}
    */
   _lastVisibleIndexVal: null,
-
-  /**
-   * The max number of pages to render. One page is equivalent to the height of the list.
-   */
-  _maxPages: 2,
 
   /**
    * The virtual index of the focused item.
@@ -263,7 +268,7 @@ export const PolymerIronList = Class({
    * to a viewport of physical items above and below the user's viewport.
    */
   get _optPhysicalSize() {
-    return this._viewportHeight === 0 ? Infinity : this._viewportHeight * this._maxPages;
+    return this._viewportHeight === 0 ? Infinity : this._viewportHeight * this.maxPages;
   },
 
  /**
