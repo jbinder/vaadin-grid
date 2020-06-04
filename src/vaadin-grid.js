@@ -400,7 +400,9 @@ class GridElement extends
   constructor() {
     super();
     this.addEventListener('animationend', this._onAnimationEnd);
-    this.maxPages = this.attributes.maxPages.value;
+    if (typeof this.attributes.maxPages !== 'undefined') {
+      this.maxPages = this.attributes.maxPages.value;
+    }
   }
 
   __hasRowsWithClientHeight() {
