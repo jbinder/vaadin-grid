@@ -44,6 +44,16 @@ To update:
       Polymer.IronScrollTargetBehavior
     ],
 
+    properties: {
+      /**
+       * The max number of pages to render. One page is equivalent to the height of the list.
+       */
+      maxPages: {
+        type: Number,
+        value: 2,
+      }
+    },
+
     /**
      * The ratio of hidden tiles that should remain in the scroll direction.
      * Recommended value ~0.5, so it will distribute tiles evenly in both directions.
@@ -137,11 +147,6 @@ To update:
      * @type {?number}
      */
     _lastVisibleIndexVal: null,
-
-    /**
-     * The max number of pages to render. One page is equivalent to the height of the list.
-     */
-    _maxPages: 2,
 
     /**
      * The virtual index of the focused item.
@@ -260,7 +265,7 @@ To update:
      * to a viewport of physical items above and below the user's viewport.
      */
     get _optPhysicalSize() {
-      return this._viewportHeight === 0 ? Infinity : this._viewportHeight * this._maxPages;
+      return this._viewportHeight === 0 ? Infinity : this._viewportHeight * this.maxPages;
     },
 
     /**
