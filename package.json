@@ -29,17 +29,17 @@
     "theme"
   ],
   "dependencies": {
-    "@polymer/polymer": "3.0.0",
+    "@polymer/polymer": "^3.0.0",
     "@polymer/iron-resizable-behavior": "^3.0.0",
     "@polymer/iron-scroll-target-behavior": "^3.0.0",
     "@polymer/iron-a11y-keys-behavior": "^3.0.0",
     "@polymer/iron-a11y-announcer": "^3.0.0",
-    "@vaadin/vaadin-themable-mixin": "1.2.1",
-    "@vaadin/vaadin-checkbox": "2.2.1",
-    "@vaadin/vaadin-text-field": "2.1.1",
-    "@vaadin/vaadin-lumo-styles": "1.1.1",
-    "@vaadin/vaadin-material-styles": "1.1.1",
-    "@vaadin/vaadin-element-mixin": "2.1.1"
+    "@vaadin/vaadin-themable-mixin": "^1.2.1",
+    "@vaadin/vaadin-checkbox": "^2.2.1",
+    "@vaadin/vaadin-text-field": "^2.1.1",
+    "@vaadin/vaadin-lumo-styles": "^1.1.1",
+    "@vaadin/vaadin-material-styles": "^1.1.1",
+    "@vaadin/vaadin-element-mixin": "^2.1.1"
   },
   "resolutions": {
 "@webcomponents/webcomponentsjs": "2.0.0",
