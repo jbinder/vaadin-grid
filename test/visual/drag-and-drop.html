@@ -4,16 +4,11 @@
   <meta charset="UTF-8">
   <title>Drag and drop visual tests</title>
   <script src="../../../webcomponentsjs/webcomponents-lite.js"></script>
-  <script>
-    const theme = window.location.search.replace(/.*theme=(\w+).*/, '$1') || 'lumo';
+  <script src="../../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>w+).*/, '$1') || 'lumo';
     document.write(`<link rel="import" href="../../theme/${theme}/all-imports.html">`);
   </script>
   <script src="../../demo/grid-demo-data.js"></script>
-</head>
-
-<body>
-  <style media="screen">
-    .capture-block {
+</<script src="../../demo/grid-demo-data.js"></script>ure-block {
       display: inline-block;
       width: 800px;
     }
@@ -31,6 +26,9 @@
     const grid = document.querySelector('vaadin-grid');
     grid.rowDetailsRenderer = root => root.innerHTML = '<p>Details</p>';
     grid.items = Vaadin.GridDemo.users;
-  </script>
-
-</body>
+  <script type="module">
+import { GridDemo } from '../../demo/grid-tree-demos.js';
+const grid = document.querySelector('vaadin-grid');
+grid.rowDetailsRenderer = root => root.innerHTML = '<p>Details</p>';
+grid.items = GridDemo.users;
+</script>

@@ -9,10 +9,9 @@
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
   <script src="../../iron-test-helpers/mock-interactions.js"></script>
-  <link rel="import" href="../../test-fixture/test-fixture.html">
+  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>ure.js"></script>
 
-  <link rel="import" href="helpers.html">
-  <link rel="import" href="../vaadin-grid.html">
+<script src="../../../wct-browser-legacy/browser.js"></script>actions.js" type="module"></script>module" src="../vaadin-grid.js"></script>
 </head>
 
 <body>
@@ -45,20 +44,23 @@
           properties: {
             dataProvider: {
               value: () => infiniteDataProvider
-            }
-          }
-        });
-      });
-    </script>
-  </dom-module>
+    <script type="module">
+import '@polymer/test-fixture/test-fixture.js';
+import './helpers.js';
+import '../vaadin-grid.js';
+import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+customElements.whenDefined('vaadin-grid').then(() => {
+  Polymer({
+    is: 'test-component',
 
-  <test-fixture id="default">
-    <template>
-      <test-component></test-component>
-    </template>
-  </test-fixture>
-
-  <test-fixture id="height-by-rows">
+    properties: {
+      dataProvider: {
+        value: () => infiniteDataProvider
+      }
+    }
+  });
+});
+</script>re id="height-by-rows">
     <template>
       <vaadin-grid>
         <vaadin-grid-column>
@@ -80,138 +82,149 @@
           component = fixture('default');
           grid = component.$.grid;
           grid.dataProvider = infiniteDataProvider;
-          listenOnce(grid, 'animationend', () => {
-            flushGrid(grid);
-            done();
-          });
-          requestAnimationFrame(() => grid.hidden = false);
+  <script type="module">
+import '@polymer/test-fixture/test-fixture.js';
+import './helpers.js';
+import '../vaadin-grid.js';
+describe('resizing', () => {
+
+  describe('notifyResize', () => {
+    let component, grid, scroller;
+
+    before(done => ensureDefined('test-component', done));
+
+    beforeEach(done => {
+      component = fixture('default');
+      grid = component.$.grid;
+      grid.dataProvider = infiniteDataProvider;
+      listenOnce(grid, 'animationend', () => {
+        flushGrid(grid);
+        done();
+      });
+      requestAnimationFrame(() => grid.hidden = false);
+    });
+
+    it('should align rows correctly', () => {
+      const rows = getRows(grid.$.items);
+      expect(rows[0].getBoundingClientRect().bottom).to.be.closeTo(rows[1].getBoundingClientRect().top, 1);
+    });
+
+    it('should update header height', () => {
+      const _bottom = grid.$.header.getBoundingClientRect().bottom;
+
+      getHeaderCellContent(grid, 0, 0).style.fontSize = '100px';
+      grid.notifyResize();
+
+      const _newBottom = grid.$.header.getBoundingClientRect().bottom;
+      expect(_newBottom).to.be.above(_bottom);
+      const firstBodyRowRect = getRows(grid.$.items)[0].getBoundingClientRect();
+      expect(firstBodyRowRect.top).to.be.closeTo(_newBottom, 1);
+    });
+
+    it('should update footer height', () => {
+      getContainerCellContent(grid.$.footer, 0, 0).style.fontSize = '100px';
+      grid.notifyResize();
+      scrollToEnd(grid);
+
+      const bodyRows = getRows(grid.$.items);
+      expect(bodyRows[bodyRows.length - 1].getBoundingClientRect().bottom)
+        .to.be.closeTo(grid.$.footer.getBoundingClientRect().top, 1);
+    });
+
+    it('should update details row height', () => {
+      grid.openItemDetails(grid._cache.items[0]);
+      const bodyRows = getRows(grid.$.items);
+      const cells = getRowCells(bodyRows[0]);
+      const detailsCell = cells.pop();
+      const _height = detailsCell.getBoundingClientRect().height;
+
+      grid.style.fontSize = '100px';
+      grid.notifyResize();
+      flushGrid(grid);
+
+      expect(detailsCell.getBoundingClientRect().height).to.be.above(_height);
+      expect(detailsCell.getBoundingClientRect().bottom)
+        .to.be.closeTo(bodyRows[1].getBoundingClientRect().top, 2);
+    });
+
+    it('should align height with number of rows', done => {
+      grid.style.height = '';
+      grid.heightByRows = true;
+      // grid.notifyResize();
+      // flushGrid(grid);
+      animationFrameFlush(() => {
+        const headerHeight = grid.$.header.clientHeight;
+        const bodyHeight = grid.$.items.clientHeight;
+        const footerHeight = grid.$.footer.clientHeight;
+        expect(grid.clientHeight).to.equal(headerHeight + bodyHeight + footerHeight);
+        done();
+      });
+    });
+
+    it('should align height with number of rows after first render', () => {
+      const grid = fixture('height-by-rows');
+      const rows = 100;
+      grid.items = grid.items = Array(...new Array(rows)).map(() => {});
+      flushGrid(grid);
+
+      grid.heightByRows = true;
+      flushGrid(grid);
+
+      expect(grid.$.items.children.length).to.equal(rows);
+    });
+
+    // NOTE: This issue only manifests with scrollbars that affect the layout
+    // (On mac: Show scroll bars: Always) and Chrome / Safari browser
+    it('should have correct layout after column width change', done => {
+      grid.style.height = '';
+      grid.heightByRows = true;
+      grid.querySelector('vaadin-grid-column').width = '300px';
+      // Before next render
+      animationFrameFlush(() => {
+        // After next render
+        setTimeout(() => {
+          expect(grid.$.scroller.getBoundingClientRect().bottom)
+            .to.equal(grid.$.table.getBoundingClientRect().bottom);
+          done();
         });
+      });
+    });
 
-        it('should align rows correctly', () => {
-          const rows = getRows(grid.$.items);
-          expect(rows[0].getBoundingClientRect().bottom).to.be.closeTo(rows[1].getBoundingClientRect().top, 1);
-        });
+    describe('flexbox parent', () => {
 
-        it('should update header height', () => {
-          const _bottom = grid.$.header.getBoundingClientRect().bottom;
-
-          getHeaderCellContent(grid, 0, 0).style.fontSize = '100px';
-          grid.notifyResize();
-
-          const _newBottom = grid.$.header.getBoundingClientRect().bottom;
-          expect(_newBottom).to.be.above(_bottom);
-          const firstBodyRowRect = getRows(grid.$.items)[0].getBoundingClientRect();
-          expect(firstBodyRowRect.top).to.be.closeTo(_newBottom, 1);
-        });
-
-        it('should update footer height', () => {
-          getContainerCellContent(grid.$.footer, 0, 0).style.fontSize = '100px';
-          grid.notifyResize();
-          scrollToEnd(grid);
-
-          const bodyRows = getRows(grid.$.items);
-          expect(bodyRows[bodyRows.length - 1].getBoundingClientRect().bottom)
-            .to.be.closeTo(grid.$.footer.getBoundingClientRect().top, 1);
-        });
-
-        it('should update details row height', () => {
-          grid.openItemDetails(grid._cache.items[0]);
-          const bodyRows = getRows(grid.$.items);
-          const cells = getRowCells(bodyRows[0]);
-          const detailsCell = cells.pop();
-          const _height = detailsCell.getBoundingClientRect().height;
-
-          grid.style.fontSize = '100px';
-          grid.notifyResize();
-          flushGrid(grid);
-
-          expect(detailsCell.getBoundingClientRect().height).to.be.above(_height);
-          expect(detailsCell.getBoundingClientRect().bottom)
-            .to.be.closeTo(bodyRows[1].getBoundingClientRect().top, 2);
-        });
-
-        it('should align height with number of rows', done => {
-          grid.style.height = '';
-          grid.heightByRows = true;
-          // grid.notifyResize();
-          // flushGrid(grid);
-          animationFrameFlush(() => {
-            const headerHeight = grid.$.header.clientHeight;
-            const bodyHeight = grid.$.items.clientHeight;
-            const footerHeight = grid.$.footer.clientHeight;
-            expect(grid.clientHeight).to.equal(headerHeight + bodyHeight + footerHeight);
-            done();
-          });
-        });
-
-        it('should align height with number of rows after first render', () => {
-          const grid = fixture('height-by-rows');
-          const rows = 100;
-          grid.items = grid.items = Array(...new Array(rows)).map(() => {});
-          flushGrid(grid);
-
-          grid.heightByRows = true;
-          flushGrid(grid);
-
-          expect(grid.$.items.children.length).to.equal(rows);
-        });
-
-        // NOTE: This issue only manifests with scrollbars that affect the layout
-        // (On mac: Show scroll bars: Always) and Chrome / Safari browser
-        it('should have correct layout after column width change', done => {
-          grid.style.height = '';
-          grid.heightByRows = true;
-          grid.querySelector('vaadin-grid-column').width = '300px';
-          // Before next render
-          animationFrameFlush(() => {
-            // After next render
-            setTimeout(() => {
-              expect(grid.$.scroller.getBoundingClientRect().bottom)
-                .to.equal(grid.$.table.getBoundingClientRect().bottom);
-              done();
-            });
-          });
-        });
-
-        describe('flexbox parent', () => {
-
-          beforeEach(() => {
-            grid.style.height = grid.style.width = '';
-            grid.size = 1;
-            component.style.display = 'flex';
-            component.style.flexDirection = 'column';
-            grid.heightByRows = true;
-          });
-
-          it('should have the default height inside a column flexbox', () => {
-            grid.heightByRows = false;
-            expect(grid.getBoundingClientRect().height).to.equal(400);
-          });
-
-          it('should auto-grow inside a fixed height column flexbox', () => {
-            component.style.height = '500px';
-            expect(grid.getBoundingClientRect().height).to.equal(129);
-          });
-
-          it('should auto-grow inside a fixed height row flexbox', () => {
-            component.style.flexDirection = 'row';
-            component.style.height = '500px';
-            expect(grid.getBoundingClientRect().height).to.equal(129);
-          });
-
-          it('should not shrink horizontally inside a row flexbox', () => {
-            component.style.flexDirection = 'row';
-            expect(grid.getBoundingClientRect().width).to.be.above(890);
-          });
-
-        });
-
+      beforeEach(() => {
+        grid.style.height = grid.style.width = '';
+        grid.size = 1;
+        component.style.display = 'flex';
+        component.style.flexDirection = 'column';
+        grid.heightByRows = true;
       });
 
+      it('should have the default height inside a column flexbox', () => {
+        grid.heightByRows = false;
+        expect(grid.getBoundingClientRect().height).to.equal(400);
+      });
+
+      it('should auto-grow inside a fixed height column flexbox', () => {
+        component.style.height = '500px';
+        expect(grid.getBoundingClientRect().height).to.equal(129);
+      });
+
+      it('should auto-grow inside a fixed height row flexbox', () => {
+        component.style.flexDirection = 'row';
+        component.style.height = '500px';
+        expect(grid.getBoundingClientRect().height).to.equal(129);
+      });
+
+      it('should not shrink horizontally inside a row flexbox', () => {
+        component.style.flexDirection = 'row';
+        expect(grid.getBoundingClientRect().width).to.be.above(890);
+      });
 
     });
-  </script>
 
-</body>
+  });
 
-</html>
+
+});
+</script>

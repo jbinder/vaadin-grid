@@ -8,10 +8,9 @@
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
-  <link rel="import" href="../../test-fixture/test-fixture.html">
+  <script type="module" src="../../../@polymer/test-fixture/test-fixture.js"></script>
 
-  <link rel="import" href="helpers.html">
-  <link rel="import" href="../vaadin-grid.html">
+<script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>pe="module" src="../vaadin-grid.js"></script>
 
   <style>
     vaadin-grid {
@@ -42,35 +41,42 @@
         grid = fixture('trivialGrid');
         grid.dataProvider = infiniteDataProvider;
         flushGrid(grid);
-      });
+  <script type="module">
+import '@polymer/test-fixture/test-fixture.js';
+import './helpers.js';
+import '../vaadin-grid.js';
+describe('hidden grid', () => {
+  let grid;
 
-      it('should be hidden', () => {
-        expect(grid.offsetWidth).to.equal(0);
-        expect(grid.offsetHeight).to.equal(0);
-      });
+  beforeEach(() => {
+    grid = fixture('trivialGrid');
+    grid.dataProvider = infiniteDataProvider;
+    flushGrid(grid);
+  });
 
-      describe('revealed', done => {
+  it('should be hidden', () => {
+    expect(grid.offsetWidth).to.equal(0);
+    expect(grid.offsetHeight).to.equal(0);
+  });
 
-        beforeEach(done => {
-          listenOnce(grid, 'animationend', () => flush(done));
-          grid.removeAttribute('hidden');
-        });
+  describe('revealed', done => {
 
-        it('should have content on appear', () => {
-          expect(grid.isAttached).to.be.true;
-          expect(getBodyCellContent(grid, 0, 0).textContent).to.equal('0');
-        });
-
-        it('should measure header on appear', () => {
-          const contentRect = getBodyCellContent(grid, 0, 0).getBoundingClientRect();
-          const headerRect = grid.$.header.getBoundingClientRect();
-        });
-
-      });
-
+    beforeEach(done => {
+      listenOnce(grid, 'animationend', () => flush(done));
+      grid.removeAttribute('hidden');
     });
-  </script>
 
-</body>
+    it('should have content on appear', () => {
+      expect(grid.isAttached).to.be.true;
+      expect(getBodyCellContent(grid, 0, 0).textContent).to.equal('0');
+    });
 
-</html>
+    it('should measure header on appear', () => {
+      const contentRect = getBodyCellContent(grid, 0, 0).getBoundingClientRect();
+      const headerRect = grid.$.header.getBoundingClientRect();
+    });
+
+  });
+
+});
+</script>

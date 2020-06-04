@@ -8,10 +8,9 @@
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
-  <link rel="import" href="../../test-fixture/test-fixture.html">
+  <script type="module" src="../../../@polymer/test-fixture/test-fixture.js"></script>
 
-  <link rel="import" href="helpers.html">
-  <link rel="import" href="../all-imports.html">
+<script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>pe="module" src="../all-imports.js"></script>
 </head>
 
 <body>
@@ -26,6 +25,16 @@
 </test-fixture>
 
 <script>
+describe('drag and drop', () => {
+  let grid;
+
+  const getDraggable = (grid, rowIndex = 0) => {
+    const row = Array.from(grid.$.items.children).filter(row => row.index === rowIndex)[0];
+    const cellContent = row.querySelector('slot').assignedNodes()[0];
+<script type="module">
+import '@polymer/test-fixture/test-fixture.js';
+import './helpers.js';
+import '../all-imports.js';
 describe('drag and drop', () => {
   let grid;
 
@@ -839,10 +848,4 @@ describe('drag and drop', () => {
 
   });
 });
-
-
 </script>
-
-</body>
-
-</html>

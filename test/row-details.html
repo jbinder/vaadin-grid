@@ -8,10 +8,9 @@
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
-  <link rel="import" href="../../test-fixture/test-fixture.html">
+  <script type="module" src="../../../@polymer/test-fixture/test-fixture.js"></script>
 
-  <link rel="import" href="helpers.html">
-  <link rel="import" href="../vaadin-grid.html">
+<script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>pe="module" src="../vaadin-grid.js"></script>
 </head>
 
 <body>
@@ -43,13 +42,17 @@
         });
       });
     </script>
-  </dom-module>
-
-  <test-fixture id="with-scope">
-    <template>
-      <x-grid></x-grid>
-    </template>
-  </test-fixture>
+  </<script type="module">
+import '@polymer/test-fixture/test-fixture.js';
+import './helpers.js';
+import '../vaadin-grid.js';
+import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+customElements.whenDefined('vaadin-grid').then(() => {
+  Polymer({
+    is: 'x-grid'
+  });
+});
+</script>ure>
 
   <dom-module id="slotted-grid">
     <template>
@@ -69,13 +72,17 @@
     </script>
   </dom-module>
 
-  <test-fixture id="slotted-template">
-    <template>
-      <slotted-grid>
-        <template class="row-details"><span>[[index]]</span>-details</template>
-      </slotted-grid>
-    </template>
-  </test-fixture>
+  <t<script type="module">
+import '@polymer/test-fixture/test-fixture.js';
+import './helpers.js';
+import '../vaadin-grid.js';
+import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+customElements.whenDefined('vaadin-grid').then(() => {
+  Polymer({
+    is: 'slotted-grid'
+  });
+});
+</script>ure>
 
   <test-fixture id="repeat">
     <template>
@@ -106,231 +113,242 @@
           composed: true
         });
         element.dispatchEvent(event);
-        return event;
-      }
+  <script type="module">
+import '@polymer/test-fixture/test-fixture.js';
+import './helpers.js';
+import '../vaadin-grid.js';
+describe('row details', () => {
+  let grid;
+  let bodyRows;
 
-      it('should not increase row update count', () => {
-        grid = fixture('default');
-        const spy = sinon.spy(grid, '_updateRow');
-        grid.size = 1;
-        grid.dataProvider = infiniteDataProvider;
-        flushGrid(grid);
-        expect(spy.callCount).to.be.below(6);
-      });
+  function click(element) {
+    const event = new CustomEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      composed: true
+    });
+    element.dispatchEvent(event);
+    return event;
+  }
 
-      describe('simple', () => {
+  it('should not increase row update count', () => {
+    grid = fixture('default');
+    const spy = sinon.spy(grid, '_updateRow');
+    grid.size = 1;
+    grid.dataProvider = infiniteDataProvider;
+    flushGrid(grid);
+    expect(spy.callCount).to.be.below(6);
+  });
 
-        function openRowDetails(index) {
-          grid.openItemDetails(grid._cache.items[index]);
-        }
+  describe('simple', () => {
 
-        beforeEach(done => {
+    function openRowDetails(index) {
+      grid.openItemDetails(grid._cache.items[index]);
+    }
 
-          grid = fixture('default');
-          grid.dataProvider = infiniteDataProvider;
-          flushGrid(grid);
-          bodyRows = getRows(grid.$.items);
-          animationFrameFlush(() => done());
-        });
+    beforeEach(done => {
 
-        function closeRowDetails(index) {
-          grid.closeItemDetails(grid._cache.items[index]);
-        }
+      grid = fixture('default');
+      grid.dataProvider = infiniteDataProvider;
+      flushGrid(grid);
+      bodyRows = getRows(grid.$.items);
+      animationFrameFlush(() => done());
+    });
 
-        it('should not activate on click', () => {
-          openRowDetails(0);
-          const detailsCellContent = getBodyCellContent(grid, 0, 1);
-          click(detailsCellContent);
-          expect(grid.activeItem).not.to.be.ok;
-        });
+    function closeRowDetails(index) {
+      grid.closeItemDetails(grid._cache.items[index]);
+    }
 
-        it('should not deactivate on click', () => {
-          openRowDetails(0);
-          click(getBodyCellContent(grid, 0, 0));
-          const detailsCellContent = getBodyCellContent(grid, 0, 1);
-          click(detailsCellContent);
-          expect(grid.activeItem).to.be.ok;
-        });
+    it('should not activate on click', () => {
+      openRowDetails(0);
+      const detailsCellContent = getBodyCellContent(grid, 0, 1);
+      click(detailsCellContent);
+      expect(grid.activeItem).not.to.be.ok;
+    });
 
-        it('should open details row', () => {
-          const cells = getRowCells(bodyRows[1]);
-          expect(cells[1].hidden).to.be.true;
-          openRowDetails(1);
-          expect(cells[1].hidden).to.be.false;
-        });
+    it('should not deactivate on click', () => {
+      openRowDetails(0);
+      click(getBodyCellContent(grid, 0, 0));
+      const detailsCellContent = getBodyCellContent(grid, 0, 1);
+      click(detailsCellContent);
+      expect(grid.activeItem).to.be.ok;
+    });
 
-        it('should close details row', () => {
-          openRowDetails(1);
-          closeRowDetails(1);
-          expect(getRowCells(bodyRows[1])[1].hidden).to.be.true;
-        });
+    it('should open details row', () => {
+      const cells = getRowCells(bodyRows[1]);
+      expect(cells[1].hidden).to.be.true;
+      openRowDetails(1);
+      expect(cells[1].hidden).to.be.false;
+    });
 
-        it('should not update metrics or item positioning', () => {
-          const metricsSpy = sinon.spy(grid, '_updateMetrics');
-          const positionSpy = sinon.spy(grid, '_positionItems');
-          grid.openItemDetails({nonExistentItem: true});
-          expect(metricsSpy).not.to.be.called;
-          expect(positionSpy).not.to.be.called;
-        });
+    it('should close details row', () => {
+      openRowDetails(1);
+      closeRowDetails(1);
+      expect(getRowCells(bodyRows[1])[1].hidden).to.be.true;
+    });
 
-        it('should close details row visually', () => {
-          openRowDetails(1);
-          closeRowDetails(1);
-          expect(bodyRows[1].getBoundingClientRect().bottom).to.be.closeTo(bodyRows[2].getBoundingClientRect().top, 1);
-        });
+    it('should not update metrics or item positioning', () => {
+      const metricsSpy = sinon.spy(grid, '_updateMetrics');
+      const positionSpy = sinon.spy(grid, '_positionItems');
+      grid.openItemDetails({nonExistentItem: true});
+      expect(metricsSpy).not.to.be.called;
+      expect(positionSpy).not.to.be.called;
+    });
 
-        it('should stamp the details template', () => {
-          openRowDetails(1);
-          const cells = getRowCells(bodyRows[1]);
-          expect(getCellContent(cells[1]).textContent.trim()).to.equal('1-details');
-        });
+    it('should close details row visually', () => {
+      openRowDetails(1);
+      closeRowDetails(1);
+      expect(bodyRows[1].getBoundingClientRect().bottom).to.be.closeTo(bodyRows[2].getBoundingClientRect().top, 1);
+    });
 
-        it('should not stamp the details template eagerly', () => {
-          const cells = getRowCells(bodyRows[1]);
-          expect(getCellContent(cells[1]).textContent.trim()).to.be.empty;
-        });
+    it('should stamp the details template', () => {
+      openRowDetails(1);
+      const cells = getRowCells(bodyRows[1]);
+      expect(getCellContent(cells[1]).textContent.trim()).to.equal('1-details');
+    });
 
-        const assertDetailsBounds = () => {
-          const cells = getRowCells(bodyRows[1]);
-          const bounds = cells[1].getBoundingClientRect();
-          expect(bounds.top).to.be.closeTo(cells[0].getBoundingClientRect().bottom, 1);
-          expect(bounds.left).to.equal(cells[0].getBoundingClientRect().left);
-          expect(bounds.right).to.equal(grid.$.items.getBoundingClientRect().right);
-          expect(bounds.bottom).to.be.closeTo(bodyRows[2].getBoundingClientRect().top, 1);
-          expect(bounds.height).to.be.above(10);
-        };
+    it('should not stamp the details template eagerly', () => {
+      const cells = getRowCells(bodyRows[1]);
+      expect(getCellContent(cells[1]).textContent.trim()).to.be.empty;
+    });
 
-        it('should have correct bounds', () => {
-          openRowDetails(1);
-          assertDetailsBounds();
-        });
+    const assertDetailsBounds = () => {
+      const cells = getRowCells(bodyRows[1]);
+      const bounds = cells[1].getBoundingClientRect();
+      expect(bounds.top).to.be.closeTo(cells[0].getBoundingClientRect().bottom, 1);
+      expect(bounds.left).to.equal(cells[0].getBoundingClientRect().left);
+      expect(bounds.right).to.equal(grid.$.items.getBoundingClientRect().right);
+      expect(bounds.bottom).to.be.closeTo(bodyRows[2].getBoundingClientRect().top, 1);
+      expect(bounds.height).to.be.above(10);
+    };
 
-        it('should have state attribute', () => {
-          openRowDetails(1);
-          expect(bodyRows[1].hasAttribute('details-opened')).to.be.true;
-          closeRowDetails(1);
-          expect(bodyRows[1].hasAttribute('details-opened')).to.be.false;
-        });
+    it('should have correct bounds', () => {
+      openRowDetails(1);
+      assertDetailsBounds();
+    });
 
-        it('should have correct bounds when modified after opening', done => {
-          openRowDetails(1);
-          const cells = getRowCells(bodyRows[1]);
-          cells[1].style.padding = '10px';
+    it('should have state attribute', () => {
+      openRowDetails(1);
+      expect(bodyRows[1].hasAttribute('details-opened')).to.be.true;
+      closeRowDetails(1);
+      expect(bodyRows[1].hasAttribute('details-opened')).to.be.false;
+    });
 
-          requestAnimationFrame(() => {
-            assertDetailsBounds();
-            done();
-          });
-        });
+    it('should have correct bounds when modified after opening', done => {
+      openRowDetails(1);
+      const cells = getRowCells(bodyRows[1]);
+      cells[1].style.padding = '10px';
 
-        it('should hide the details cell', () => {
-          openRowDetails(1);
-          const row = bodyRows[1];
-          scrollToEnd(grid);
-          expect(getRowCells(row)[1].hidden).to.be.true;
-        });
-
-        it('should add details to fixed cells cache', () => {
-          openRowDetails(1);
-
-          flushGrid(grid);
-          bodyRows = getRows(grid.$.items);
-
-          expect(grid._frozenCells).to.contain(getRowCells(bodyRows[1])[1]);
-        });
-
-        it('should open details for equaling item', () => {
-          const cells = getRowCells(bodyRows[0]);
-          grid.itemIdPath = 'value';
-          grid.openItemDetails({value: 'foo0'});
-          expect(cells[1].hidden).to.be.false;
-        });
-
-        it('should close details for equaling item', () => {
-          const cells = getRowCells(bodyRows[0]);
-          grid.itemIdPath = 'value';
-          grid.openItemDetails(bodyRows[0]._item);
-          expect(cells[1].hidden).to.be.false;
-          grid.closeItemDetails({value: 'foo0'});
-          expect(cells[1].hidden).to.be.true;
-        });
-      });
-
-      describe('inside a parent scope', () => {
-
-        beforeEach(() => {
-          grid = fixture('with-scope').$.grid;
-          grid.items = ['foo', 'bar', 'baz'];
-          flushGrid(grid);
-          bodyRows = getRows(grid.$.items);
-        });
-
-        it('should have the correct index on details template', () => {
-          // open details for item 0
-          grid.openItemDetails('foo');
-
-          // open details for item 1
-          grid.openItemDetails('bar');
-
-          const firstRowCells = getRowCells(bodyRows[0]);
-          const secondRowCells = getRowCells(bodyRows[1]);
-          expect(getCellContent(firstRowCells[1]).textContent.trim()).to.equal('0-details');
-          expect(getCellContent(secondRowCells[1]).textContent.trim()).to.equal('1-details');
-        });
-      });
-
-      describe('slotted template', () => {
-        let slottedGrid;
-
-        beforeEach(() => {
-          slottedGrid = fixture('slotted-template');
-          grid = slottedGrid.$.grid;
-          grid.items = ['foo', 'bar', 'baz'];
-          flushGrid(grid);
-          bodyRows = getRows(grid.$.items);
-        });
-
-        it('should support slotted details templates', () => {
-          grid.openItemDetails('foo');
-          expect(getBodyCellContent(grid, 0, 1).textContent.trim()).to.equal('0-details');
-        });
-
-        it('should change the details template', () => {
-          grid.openItemDetails('foo');
-
-          const newTemplate = document.createElement('template');
-          newTemplate.classList.add('row-details');
-          newTemplate.innerHTML = '[[item]]-bar';
-
-          slottedGrid.innerHTML = '';
-          slottedGrid.appendChild(newTemplate);
-          flushGrid(grid);
-          expect(getBodyCellContent(grid, 0, 1).textContent.trim()).to.equal('foo-bar');
-        });
-      });
-
-      describe('repeat', () => {
-
-        const items = [];
-        for (var i = 0; i < 50; i++) {
-          items.push({details: [1, 2, 3, 4]});
-        }
-
-        beforeEach(() => grid = fixture('repeat'));
-
-        it('should have correct height', () => {
-          grid.openItemDetails(items[0]);
-
-          grid.dataProvider = (params, callback) => callback(items);
-          flushGrid(grid);
-
-          const row = getRows(grid.$.items)[0];
-          expect(row.offsetHeight).to.be.above(70);
-        });
+      requestAnimationFrame(() => {
+        assertDetailsBounds();
+        done();
       });
     });
-  </script>
 
-</body>
+    it('should hide the details cell', () => {
+      openRowDetails(1);
+      const row = bodyRows[1];
+      scrollToEnd(grid);
+      expect(getRowCells(row)[1].hidden).to.be.true;
+    });
 
-</html>
+    it('should add details to fixed cells cache', () => {
+      openRowDetails(1);
+
+      flushGrid(grid);
+      bodyRows = getRows(grid.$.items);
+
+      expect(grid._frozenCells).to.contain(getRowCells(bodyRows[1])[1]);
+    });
+
+    it('should open details for equaling item', () => {
+      const cells = getRowCells(bodyRows[0]);
+      grid.itemIdPath = 'value';
+      grid.openItemDetails({value: 'foo0'});
+      expect(cells[1].hidden).to.be.false;
+    });
+
+    it('should close details for equaling item', () => {
+      const cells = getRowCells(bodyRows[0]);
+      grid.itemIdPath = 'value';
+      grid.openItemDetails(bodyRows[0]._item);
+      expect(cells[1].hidden).to.be.false;
+      grid.closeItemDetails({value: 'foo0'});
+      expect(cells[1].hidden).to.be.true;
+    });
+  });
+
+  describe('inside a parent scope', () => {
+
+    beforeEach(() => {
+      grid = fixture('with-scope').$.grid;
+      grid.items = ['foo', 'bar', 'baz'];
+      flushGrid(grid);
+      bodyRows = getRows(grid.$.items);
+    });
+
+    it('should have the correct index on details template', () => {
+      // open details for item 0
+      grid.openItemDetails('foo');
+
+      // open details for item 1
+      grid.openItemDetails('bar');
+
+      const firstRowCells = getRowCells(bodyRows[0]);
+      const secondRowCells = getRowCells(bodyRows[1]);
+      expect(getCellContent(firstRowCells[1]).textContent.trim()).to.equal('0-details');
+      expect(getCellContent(secondRowCells[1]).textContent.trim()).to.equal('1-details');
+    });
+  });
+
+  describe('slotted template', () => {
+    let slottedGrid;
+
+    beforeEach(() => {
+      slottedGrid = fixture('slotted-template');
+      grid = slottedGrid.$.grid;
+      grid.items = ['foo', 'bar', 'baz'];
+      flushGrid(grid);
+      bodyRows = getRows(grid.$.items);
+    });
+
+    it('should support slotted details templates', () => {
+      grid.openItemDetails('foo');
+      expect(getBodyCellContent(grid, 0, 1).textContent.trim()).to.equal('0-details');
+    });
+
+    it('should change the details template', () => {
+      grid.openItemDetails('foo');
+
+      const newTemplate = document.createElement('template');
+      newTemplate.classList.add('row-details');
+      newTemplate.innerHTML = '[[item]]-bar';
+
+      slottedGrid.innerHTML = '';
+      slottedGrid.appendChild(newTemplate);
+      flushGrid(grid);
+      expect(getBodyCellContent(grid, 0, 1).textContent.trim()).to.equal('foo-bar');
+    });
+  });
+
+  describe('repeat', () => {
+
+    const items = [];
+    for (var i = 0; i < 50; i++) {
+      items.push({details: [1, 2, 3, 4]});
+    }
+
+    beforeEach(() => grid = fixture('repeat'));
+
+    it('should have correct height', () => {
+      grid.openItemDetails(items[0]);
+
+      grid.dataProvider = (params, callback) => callback(items);
+      flushGrid(grid);
+
+      const row = getRows(grid.$.items)[0];
+      expect(row.offsetHeight).to.be.above(70);
+    });
+  });
+});
+</script>
